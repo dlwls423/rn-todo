@@ -1,13 +1,27 @@
-import { Image, StyleSheet, View } from 'react-native';
-import Input, { KeyboardTypes, ReturnKeyTypes } from '../components/Input';
+import { Image, StyleSheet, View, Keyboard } from 'react-native';
+import Input, {
+  IconNames,
+  KeyboardTypes,
+  ReturnKeyTypes,
+} from '../components/Input';
 import SafeInputView from '../components/SafeInputView';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Button from '../components/Button';
 
 const SignInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const passwordRef = useRef(null);
+  const [disabled, setDisabled] = useState(true);
 
-  console.log(email, password);
+  useEffect(() => {
+    setDisabled(!email || !password);
+  }, [email, password]);
+
+  const onSubmit = () => {
+    Keyboard.dismiss();
+    console.log(email, password);
+  };
 
   return (
     <SafeInputView>
@@ -21,14 +35,23 @@ const SignInScreen = () => {
           returnKeyType={ReturnKeyTypes.NEXT}
           value={email}
           onChangeText={(email) => setEmail(email.trim())}
+          iconName={IconNames.EMAIL}
+          onSubmitEditing={() => passwordRef.current.focus()}
         />
         <Input
+          ref={passwordRef}
           title={'비밀번호'}
           returnKeyType={ReturnKeyTypes.DONE}
           secureTextEntry
           value={password}
           onChangeText={(password) => setPassword(password.trim())}
+          iconName={IconNames.PASSWORD}
+          onSubmitEditing={onSubmit}
         />
+
+        <View style={styles.buttonContainer}>
+          <Button title="로그인" onPress={onSubmit} disabled={disabled} />
+        </View>
       </View>
     </SafeInputView>
   );
@@ -43,6 +66,11 @@ const styles = StyleSheet.create({
   image: {
     width: 200,
     height: 200,
+  },
+  buttonContainer: {
+    width: '100%',
+    marginTop: 30,
+    paddingHorizontal: 20,
   },
 });
 
