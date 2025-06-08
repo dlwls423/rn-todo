@@ -1,15 +1,24 @@
 import { Alert, Image, StyleSheet, View, Keyboard } from 'react-native';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import Input, {
   IconNames,
   KeyboardTypes,
   ReturnKeyTypes,
 } from '../components/Input';
 import SafeInputView from '../components/SafeInputView';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import Button from '../components/Button';
 import { signIn } from '../api/auth';
+import { useUserContext } from '../contexts/UserContext';
 
 const SignInScreen = () => {
+  const insets = useSafeAreaInsets();
+
+  const { setUser } = useUserContext();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const passwordRef = useRef(null);
@@ -28,6 +37,7 @@ const SignInScreen = () => {
         const data = await signIn(email, password);
         console.log(data);
         setIsLoading(false);
+        setUser(data);
       } catch (error) {
         Alert.alert('로그인 실패', error, [
           { text: '확인', onPress: () => setIsLoading(false) },
@@ -39,7 +49,12 @@ const SignInScreen = () => {
 
   return (
     <SafeInputView>
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          { paddingTop: insets.top, paddingBottom: insets.bottom },
+        ]}
+      >
         <Image source={require('../../assets/main.png')} style={styles.image} />
 
         <Input
